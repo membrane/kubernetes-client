@@ -33,6 +33,9 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
 
     Logger LOG = LoggerFactory.getLogger(LocalKubeconfigApiClient.class);
 
+    @Value("${kubernetes.client.namespace:}")
+    public String namespace;
+
     public static File getConfigFile() {
         return new File(new File(new File(System.getProperty("user.home")), ".kube"), "config");
     }
@@ -79,5 +82,10 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
         super.init();
     }
 
+    public String getMyNamespace() {
+        if (namespace == null || namespace.equals(""))
+            return "default";
+        return namespace;
+    }
 
 }

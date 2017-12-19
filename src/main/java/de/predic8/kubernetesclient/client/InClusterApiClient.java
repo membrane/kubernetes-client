@@ -35,4 +35,12 @@ public class InClusterApiClient extends LoggingApiClient {
 
         super.init();
     }
+
+    public String getMyNamespace() {
+        try {
+            return Files.asCharSource(new File("/var/run/secrets/kubernetes.io/serviceaccount/namespace"), Charsets.UTF_8).read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class LoggingApiClient extends ApiClient {
+public abstract class LoggingApiClient extends NamespacedApiClient {
 
     Logger LOG = LoggerFactory.getLogger(LocalKubeconfigApiClient.class);
 
