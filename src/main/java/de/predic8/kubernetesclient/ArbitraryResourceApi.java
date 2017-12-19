@@ -2,6 +2,7 @@ package de.predic8.kubernetesclient;
 
 import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Call;
+import com.squareup.okhttp.OkHttpClient;
 import io.kubernetes.client.*;
 import io.kubernetes.client.models.V1DeleteOptions;
 import io.kubernetes.client.models.V1Status;
@@ -13,31 +14,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class ArbitraryResourceApi<T> {
-    private ApiClient apiClient;
-
+    private final ApiClient apiClient;
+    private final ApiClient slowApiClient;
     private final String apiGroup;
     private final String plural;
     private final String version;
 
-    public ArbitraryResourceApi(String apiGroup, String version, String plural) {
-        this(Configuration.getDefaultApiClient(), apiGroup, version, plural);
-    }
-
-    public ArbitraryResourceApi(ApiClient apiClient, String apiGroup, String version, String plural) {
+    public ArbitraryResourceApi(ApiClient apiClient, ApiClient slowApiClient, String apiGroup, String version, String plural) {
         this.apiClient = apiClient;
+        this.slowApiClient = slowApiClient;
         this.apiGroup = apiGroup;
         this.version = version;
         this.plural = plural;
-    }
-
-    public ApiClient getApiClient() {
-        return apiClient;
-    }
-
-    public void setApiClient(ApiClient apiClient) {
-        this.apiClient = apiClient;
     }
 
     public T create(String namespace, T body, String pretty) throws ApiException {
@@ -1185,7 +1176,8 @@ public class ArbitraryResourceApi<T> {
 
     public AsyncWatcher watchAsync(String namespace, String resourceVersion, Watcher<T> watcher) throws ApiException {
         Call call = listCall(namespace, null, null, null, true, null, null, resourceVersion, 0, true, null, null);
-        Watch<T> watch = Watch.createWatch(apiClient,
+        apiClient.setConnectTimeout(0);
+        Watch<T> watch = Watch.createWatch(slowApiClient,
                 call,
                 new TypeToken<Watch.Response<T>>() {
                 }.getType());

@@ -5,13 +5,17 @@ import de.predic8.kubernetesclient.client.LocalKubeconfigApiClient;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.apis.ApiextensionsV1beta1Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class KubernetesClientConfig {
+    @Primary
     @Bean
     public ApiClient kubernetesClient() {
 
@@ -24,6 +28,13 @@ public class KubernetesClientConfig {
         throw new RuntimeException("Could not auto-detect the Kubernetes client configuration, as neither " +
                 LocalKubeconfigApiClient.getConfigFile().getAbsolutePath() + " nor " +
                 InClusterApiClient.getTokenFile().getAbsolutePath() + " exist.");
+    }
+
+    @Bean
+    public ApiClient slowApiClient() {
+        ApiClient ac = kubernetesClient();
+        ac.getHttpClient().setReadTimeout(0, TimeUnit.MILLISECONDS);
+        return ac;
     }
 
     @Bean
