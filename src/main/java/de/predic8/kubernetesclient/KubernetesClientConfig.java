@@ -6,6 +6,7 @@ import de.predic8.kubernetesclient.util.ApiExceptionParser;
 import de.predic8.kubernetesclient.util.KubeUtil;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.apis.ApiextensionsV1beta1Api;
+import io.kubernetes.client.apis.PolicyV1beta1Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +46,11 @@ public class KubernetesClientConfig {
     @Bean
     public ApiextensionsV1beta1Api apiextensionsV1beta1Api(@Autowired ApiClient apiClient) {
         return new ApiextensionsV1beta1Api(apiClient);
+    }
+
+    @Bean
+    public PolicyV1beta1Api policyV1beta1Api(@Autowired ApiClient apiClient) {
+        return new PolicyV1beta1Api(apiClient);
     }
 
     @Bean
