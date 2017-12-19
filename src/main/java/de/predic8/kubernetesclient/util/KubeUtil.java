@@ -1,10 +1,9 @@
-package de.predic8.kubernetesclient;
+package de.predic8.kubernetesclient.util;
 
-import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Call;
+import de.predic8.kubernetesclient.util.ApiExceptionParser;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
-import io.kubernetes.client.models.V1Endpoints;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class KubeUtil {

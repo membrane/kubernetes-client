@@ -1,4 +1,4 @@
-package de.predic8.kubernetesclient;
+package de.predic8.kubernetesclient.genericapi;
 
 import io.kubernetes.client.ApiException;
 

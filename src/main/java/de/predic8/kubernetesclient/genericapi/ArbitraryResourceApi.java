@@ -1,8 +1,7 @@
-package de.predic8.kubernetesclient;
+package de.predic8.kubernetesclient.genericapi;
 
 import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Call;
-import com.squareup.okhttp.OkHttpClient;
 import io.kubernetes.client.*;
 import io.kubernetes.client.models.V1DeleteOptions;
 import io.kubernetes.client.models.V1Status;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class ArbitraryResourceApi<T> {
     private final ApiClient apiClient;

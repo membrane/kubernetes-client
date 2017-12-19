@@ -2,15 +2,15 @@ package de.predic8.kubernetesclient;
 
 import de.predic8.kubernetesclient.client.InClusterApiClient;
 import de.predic8.kubernetesclient.client.LocalKubeconfigApiClient;
+import de.predic8.kubernetesclient.util.ApiExceptionParser;
+import de.predic8.kubernetesclient.util.KubeUtil;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.apis.ApiextensionsV1beta1Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
