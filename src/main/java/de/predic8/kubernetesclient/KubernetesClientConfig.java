@@ -4,6 +4,7 @@ import de.predic8.kubernetesclient.client.InClusterApiClient;
 import de.predic8.kubernetesclient.client.LocalKubeconfigApiClient;
 import de.predic8.kubernetesclient.util.ApiExceptionParser;
 import de.predic8.kubernetesclient.util.KubeUtil;
+import de.predic8.kubernetesclient.util.KubernetesVersion;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.apis.ApiextensionsV1beta1Api;
 import io.kubernetes.client.apis.PolicyV1beta1Api;
@@ -62,4 +63,7 @@ public class KubernetesClientConfig {
     public KubeUtil kubeUtil() {
         return new KubeUtil();
     }
+
+    @Bean
+    public KubernetesVersion kv() { return new KubernetesVersion(); }
 }
