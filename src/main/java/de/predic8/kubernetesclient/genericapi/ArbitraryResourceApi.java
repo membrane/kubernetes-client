@@ -1,5 +1,6 @@
 package de.predic8.kubernetesclient.genericapi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Call;
 import io.kubernetes.client.*;
@@ -1172,24 +1173,32 @@ public class ArbitraryResourceApi<T> {
         return replace(namespace, name, item, null);
     }
 
-    public AsyncWatcher watchAsync(String namespace, String resourceVersion, Watcher<T> watcher) throws ApiException {
+    public AsyncWatcher watchAsync(String namespace, String resourceVersion, Class<T> clazz, Watcher<T> watcher) throws ApiException {
         Call call = listCall(namespace, null, null, null, true, null, null, resourceVersion, 0, true, null, null);
         apiClient.setConnectTimeout(0);
-        Watch<T> watch = Watch.createWatch(slowApiClient,
-                call,
-                new TypeToken<Watch.Response<T>>() {
-                }.getType());
 
         Thread t = new Thread() {
             @Override
             public void run() {
+
+
                 try {
+                    Watch<T> watch = Watch.createWatch(slowApiClient,
+                            call, Watch.Response.class);
+
+                    ObjectMapper om = new ObjectMapper();
+
                     for (Watch.Response<T> pod : watch) {
-                        watcher.eventReceived(Watcher.Action.valueOf(pod.type), pod.object);
+                        T t = om.readValue(om.writeValueAsString(pod.object), clazz);
+                        watcher.eventReceived(Watcher.Action.valueOf(pod.type), t);
                     }
                     watcher.onClose(null);
+                } catch (ApiException e) {
+                    watcher.onClose(e);
                 } catch (Exception e) {
                     watcher.onClose(new ApiException(e));
+                } finally {
+                    call.cancel();
                 }
             }
         };
