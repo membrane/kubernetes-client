@@ -93,6 +93,7 @@ public class WebSockets {
 
         @Override
         public void onOpen(final WebSocket webSocket, Response response) {
+            System.err.println("status: " + response.code());
             String protocol = response.header(STREAM_PROTOCOL_HEADER, "missing");
             listener.open(protocol, webSocket);
         }

@@ -22,7 +22,7 @@ public class PortForwarder {
     private final int sourcePort;
     private final int targetPort;
     private final String namespace;
-    private final String pod;
+    protected final String pod;
 
     public PortForwarder(int sourcePort, int targetPort, String namespace, String pod) {
 
@@ -95,6 +95,12 @@ public class PortForwarder {
             } catch (IOException e) {
                 e.printStackTrace();
                 connectionHandler = null;
+            } finally {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
         connectionHandler.start();
