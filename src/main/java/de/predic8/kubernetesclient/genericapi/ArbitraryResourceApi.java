@@ -1,6 +1,7 @@
 package de.predic8.kubernetesclient.genericapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Call;
 import io.kubernetes.client.*;
@@ -21,6 +22,7 @@ public class ArbitraryResourceApi<T> {
     private final String apiGroup;
     private final String plural;
     private final String version;
+    private final Gson om = new JSON().getGson();
 
     public ArbitraryResourceApi(ApiClient apiClient, ApiClient slowApiClient, String apiGroup, String version, String plural) {
         this.apiClient = apiClient;
@@ -1186,10 +1188,10 @@ public class ArbitraryResourceApi<T> {
                     Watch<T> watch = Watch.createWatch(slowApiClient,
                             call, Watch.Response.class);
 
-                    ObjectMapper om = new ObjectMapper();
+
 
                     for (Watch.Response<T> pod : watch) {
-                        T t = om.readValue(om.writeValueAsString(pod.object), clazz);
+                        T t = om.fromJson(om.toJson(pod.object), clazz);
                         watcher.eventReceived(Watcher.Action.valueOf(pod.type), t);
                     }
                     watcher.onClose(null);
