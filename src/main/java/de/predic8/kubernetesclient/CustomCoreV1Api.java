@@ -8,7 +8,12 @@ import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1Status;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class CustomCoreV1Api extends CoreV1Api {

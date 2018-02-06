@@ -5,13 +5,18 @@ import java.io.IOException;
 
 public class AsyncWatcher implements Closeable {
     private Thread t;
+    volatile boolean closed = false;
 
-    AsyncWatcher(Thread t) {
+    AsyncWatcher() {
+    }
+
+    public void setT(Thread t) {
         this.t = t;
     }
 
     @Override
     public void close() {
+        closed = true;
         t.interrupt();
     }
 }

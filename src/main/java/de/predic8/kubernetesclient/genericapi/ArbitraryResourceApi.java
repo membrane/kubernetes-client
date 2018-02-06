@@ -1176,38 +1176,44 @@ public class ArbitraryResourceApi<T> {
     }
 
     public AsyncWatcher watchAsync(String namespace, String resourceVersion, Class<T> clazz, Watcher<T> watcher) throws ApiException {
-        Call call = listCall(namespace, null, null, null, true, null, null, resourceVersion, 0, true, null, null);
+        return watchAsync(namespace, resourceVersion, clazz, null, watcher);
+    }
+
+    public AsyncWatcher watchAsync(String namespace, String resourceVersion, Class<T> clazz, String labelSelector, Watcher<T> watcher) throws ApiException {
+        Call call = listCall(namespace, null, null, null, true, labelSelector, null, resourceVersion, 0, true, null, null);
         apiClient.setConnectTimeout(0);
+
+        Watch<T> watch = Watch.createWatch(slowApiClient,
+            call, Watch.Response.class);
+
+        AsyncWatcher asyncWatcher = new AsyncWatcher();
 
         Thread t = new Thread() {
             @Override
             public void run() {
 
-
                 try {
-                    Watch<T> watch = Watch.createWatch(slowApiClient,
-                            call, Watch.Response.class);
-
-
 
                     for (Watch.Response<T> pod : watch) {
                         T t = om.fromJson(om.toJson(pod.object), clazz);
                         watcher.eventReceived(Watcher.Action.valueOf(pod.type), t);
                     }
                     watcher.onClose(null);
-                } catch (ApiException e) {
-                    watcher.onClose(e);
                 } catch (Exception e) {
-                    watcher.onClose(new ApiException(e));
+                    if (asyncWatcher.closed)
+                        watcher.onClose(null);
+                    else
+                        watcher.onClose(new ApiException(e));
                 } finally {
                     call.cancel();
                 }
             }
         };
+        asyncWatcher.setT(t);
 
         t.start();
 
-        return new AsyncWatcher(t);
+        return asyncWatcher;
     }
 
 
