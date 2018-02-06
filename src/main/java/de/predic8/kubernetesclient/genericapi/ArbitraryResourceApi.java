@@ -1176,11 +1176,11 @@ public class ArbitraryResourceApi<T> {
     }
 
     public AsyncWatcher watchAsync(String namespace, String resourceVersion, Class<T> clazz, Watcher<T> watcher) throws ApiException {
-        return watchAsync(namespace, resourceVersion, clazz, null, watcher);
+        return watchAsync(namespace, resourceVersion, clazz, null, null, watcher);
     }
 
-    public AsyncWatcher watchAsync(String namespace, String resourceVersion, Class<T> clazz, String labelSelector, Watcher<T> watcher) throws ApiException {
-        Call call = listCall(namespace, null, null, null, true, labelSelector, null, resourceVersion, 0, true, null, null);
+    public AsyncWatcher watchAsync(String namespace, String resourceVersion, Class<T> clazz, String fieldSelector, String labelSelector, Watcher<T> watcher) throws ApiException {
+        Call call = listCall(namespace, null, null, fieldSelector, true, labelSelector, null, resourceVersion, 0, true, null, null);
         apiClient.setConnectTimeout(0);
 
         Watch<T> watch = Watch.createWatch(slowApiClient,
