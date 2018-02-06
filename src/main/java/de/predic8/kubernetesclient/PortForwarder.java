@@ -23,6 +23,7 @@ public class PortForwarder {
     private final int targetPort;
     private final String namespace;
     protected final String pod;
+    private volatile ServerSocket ss;
 
     public PortForwarder(int sourcePort, int targetPort, String namespace, String pod) {
 
@@ -40,12 +41,15 @@ public class PortForwarder {
     @PostConstruct
     public void start() throws IOException, ApiException {
 
-        ServerSocket ss = new ServerSocket(sourcePort);
+        ss = new ServerSocket(sourcePort);
 
         connectionHandler = new Thread(() -> {
             try {
                 while (true) {
-                    final Socket s = ss.accept();
+                    ServerSocket ss2 = ss;
+                    if (ss2 == null)
+                        break;
+                    final Socket s = ss2.accept();
                     LOG.info("Forwarding request from port " + sourcePort + " to " + pod + ":" + targetPort);
 
                     PortForward forward = new PortForward(apiClient);
@@ -93,11 +97,14 @@ public class PortForwarder {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                if (ss != null)
+                    e.printStackTrace();
                 connectionHandler = null;
             } finally {
                 try {
-                    ss.close();
+                    ServerSocket ss2 = ss;
+                    if (ss2 != null)
+                        ss2.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -108,9 +115,16 @@ public class PortForwarder {
 
     @PreDestroy
     public void done() {
-
         Thread t = connectionHandler;
         if (t != null)
             t.interrupt();
+
+        try {
+            ServerSocket ss2 = ss;
+            ss = null;
+            ss2.close();
+        } catch (IOException e) {
+            LOG.error("could not close socket", e);
+        }
     }
 }
