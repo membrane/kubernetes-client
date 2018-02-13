@@ -103,11 +103,12 @@ public class KubeUtil {
             } catch (ApiException e) {
                 e.printStackTrace();
             }
-            for (V1beta1CustomResourceDefinitionCondition condition : crd2.getStatus().getConditions()) {
-                if ("Established".equals(condition.getType()) && "True".equals(condition.getStatus())) {
-                    break OUTER;
+            if (crd2.getStatus() != null && crd2.getStatus().getConditions() != null)
+                for (V1beta1CustomResourceDefinitionCondition condition : crd2.getStatus().getConditions()) {
+                    if ("Established".equals(condition.getType()) && "True".equals(condition.getStatus())) {
+                        break OUTER;
+                    }
                 }
-            }
             LOG.info("Waiting for CRD to be established...");
             try {
                 Thread.sleep(1000);
