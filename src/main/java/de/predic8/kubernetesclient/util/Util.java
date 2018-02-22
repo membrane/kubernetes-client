@@ -4,6 +4,8 @@ import io.kubernetes.client.models.V1Pod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Inet4Address;
@@ -28,7 +30,7 @@ public class Util {
         if (version != null && !version.isEmpty())
             return version;
         try {
-            version = new Manifest(Util.class.getResourceAsStream("/META-INF/MANIFEST.MF")).getMainAttributes().getValue("Implementation-Version");
+            version = new Manifest(new FileInputStream(new File("META-INF/MANIFEST.MF"))).getMainAttributes().getValue("Implementation-Version");
         } catch (IOException e) {
             // do nothing
         }
