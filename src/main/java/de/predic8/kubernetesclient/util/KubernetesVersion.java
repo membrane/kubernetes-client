@@ -57,6 +57,7 @@ public class KubernetesVersion {
 
         major = Integer.parseInt((String) version.get("major"));
         minor = Integer.parseInt((String) version.get("minor"));
+        res.close();
     }
 
     public boolean supportsCRD() {
