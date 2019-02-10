@@ -1181,7 +1181,7 @@ public class ArbitraryResourceApi<T> {
 
     public AsyncWatcher watchAsync(String namespace, String resourceVersion, Class<T> clazz, String fieldSelector, String labelSelector, Watcher<T> watcher) throws ApiException {
         Call call = listCall(namespace, null, null, fieldSelector, true, labelSelector, null, resourceVersion, 0, true, null, null);
-        slowApiClient.setConnectTimeout(20);
+        slowApiClient.setConnectTimeout(20000);
 
         Watch<T> watch = Watch.createWatch(slowApiClient,
             call, Watch.Response.class);

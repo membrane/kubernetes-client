@@ -9,6 +9,8 @@ import java.util.Map;
 public class ApiExceptionParser {
     public String getReason(ApiException e) throws ApiException {
         String body = e.getResponseBody();
+        if (body == null)
+            return null;
         if (!body.startsWith("{"))
             throw e;
         try {

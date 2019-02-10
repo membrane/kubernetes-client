@@ -37,6 +37,7 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
 
     @PostConstruct
     public void init() {
+        getHttpClient().setConnectTimeout(10, TimeUnit.SECONDS);
         getHttpClient().setReadTimeout(300, TimeUnit.SECONDS);
 
         if (logHttp) {
