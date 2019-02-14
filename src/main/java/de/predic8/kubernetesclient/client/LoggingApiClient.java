@@ -116,7 +116,7 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
             HttpLoggingInterceptor.Level level = this.level;
 
             Request request = chain.request();
-            if (level == HttpLoggingInterceptor.Level.NONE) {
+            if (level == HttpLoggingInterceptor.Level.NONE || request.urlString().contains("watch=true")) {
                 return chain.proceed(request);
             }
 
