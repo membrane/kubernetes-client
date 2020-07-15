@@ -87,13 +87,7 @@ public class KubeUtil {
         }
     }
 
-    public void createCRDAndWaitUntilEstablished(V1CustomResourceDefinition crd) {
-        try {
-            api.createCustomResourceDefinition(crd, null, null, null);
-        } catch (ApiException e) {
-            handleExistsException(e);
-        }
-
+    public void waitUntilEstablished(V1CustomResourceDefinition crd) {
         // wait for 'Established' condition
         // .status.conditions[?(@.type=="Established")].status == 'True'
         OUTER:
