@@ -16,6 +16,9 @@ public class Kubeconfig {
         @JsonProperty("certificate-authority-data")
         public String certificateAuthorityData;
 
+        @JsonProperty("insecure-skip-tls-verify")
+        boolean insecureSkipTlsVerify;
+
         public String server;
 
         public String getServer() {

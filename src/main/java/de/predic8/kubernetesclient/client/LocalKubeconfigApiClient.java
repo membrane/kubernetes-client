@@ -60,12 +60,21 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
                 cert = user.clientCertificate;
                 if (cert == null)
                     throw new NotImplementedException();
-                cert = Files.asCharSource(new File(baseDir, cert), Charsets.UTF_8).read();
+                File file;
+                if (cert.contains(":\\"))
+                    file = new File(cert);
+                else
+                    file = new File(baseDir, cert);
+                cert = Files.asCharSource(file, Charsets.UTF_8).read();
 
                 key = user.clientKey;
                 if (key == null)
                     throw new NotImplementedException();
-                key = Files.asCharSource(new File(baseDir, key), Charsets.UTF_8).read();
+                if (key.contains(":\\"))
+                    file = new File(key);
+                else
+                    file = new File(baseDir, key);
+                key = Files.asCharSource(file, Charsets.UTF_8).read();
             }
 
             try {
