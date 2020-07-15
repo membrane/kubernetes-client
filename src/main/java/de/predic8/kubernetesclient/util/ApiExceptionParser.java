@@ -1,7 +1,7 @@
 package de.predic8.kubernetesclient.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 
 import java.io.IOException;
 import java.util.Map;

@@ -5,9 +5,9 @@ import de.predic8.kubernetesclient.client.LocalKubeconfigApiClient;
 import de.predic8.kubernetesclient.util.ApiExceptionParser;
 import de.predic8.kubernetesclient.util.KubeUtil;
 import de.predic8.kubernetesclient.util.KubernetesVersion;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.apis.ApiextensionsV1beta1Api;
-import io.kubernetes.client.apis.PolicyV1beta1Api;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.apis.ApiextensionsV1Api;
+import io.kubernetes.client.openapi.apis.PolicyV1beta1Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +35,7 @@ public class KubernetesClientConfig {
     @Bean
     public ApiClient slowApiClient() {
         ApiClient ac = kubernetesClient();
-        ac.getHttpClient().setReadTimeout(0, TimeUnit.MILLISECONDS);
+        ac.setHttpClient(ac.getHttpClient().newBuilder().readTimeout(0, TimeUnit.MILLISECONDS).build());
         return ac;
     }
 
@@ -45,8 +45,8 @@ public class KubernetesClientConfig {
     }
 
     @Bean
-    public ApiextensionsV1beta1Api apiextensionsV1beta1Api(@Autowired ApiClient apiClient) {
-        return new ApiextensionsV1beta1Api(apiClient);
+    public ApiextensionsV1Api ApiextensionsV1Api(@Autowired ApiClient apiClient) {
+        return new ApiextensionsV1Api(apiClient);
     }
 
     @Bean

@@ -16,7 +16,7 @@ package de.predic8.kubernetesclient.genericapi;
 import java.util.Objects;
 
 import com.google.gson.annotations.SerializedName;
-import io.kubernetes.client.models.V1ListMeta;
+import io.kubernetes.client.openapi.models.V1ListMeta;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -127,11 +127,11 @@ public class ARList<T> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ARList v1beta1CustomResourceDefinitionList = (ARList) o;
-    return Objects.equals(this.apiVersion, v1beta1CustomResourceDefinitionList.apiVersion) &&
-        Objects.equals(this.items, v1beta1CustomResourceDefinitionList.items) &&
-        Objects.equals(this.kind, v1beta1CustomResourceDefinitionList.kind) &&
-        Objects.equals(this.metadata, v1beta1CustomResourceDefinitionList.metadata);
+    ARList V1CustomResourceDefinitionList = (ARList) o;
+    return Objects.equals(this.apiVersion, V1CustomResourceDefinitionList.apiVersion) &&
+        Objects.equals(this.items, V1CustomResourceDefinitionList.items) &&
+        Objects.equals(this.kind, V1CustomResourceDefinitionList.kind) &&
+        Objects.equals(this.metadata, V1CustomResourceDefinitionList.metadata);
   }
 
   @Override

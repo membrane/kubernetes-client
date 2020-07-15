@@ -2,8 +2,8 @@ package de.predic8.kubernetesclient;
 
 import com.google.common.io.ByteStreams;
 import de.predic8.kubernetesclient.patch.PortForward;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

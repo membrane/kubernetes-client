@@ -1,10 +1,8 @@
 package de.predic8.kubernetesclient.client;
 
-import com.squareup.okhttp.*;
-import com.squareup.okhttp.internal.http.HttpEngine;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import de.predic8.kubernetesclient.PEMSupport;
-import io.kubernetes.client.ApiClient;
+import okhttp3.*;
+import okhttp3.logging.HttpLoggingInterceptor;
 import okio.Buffer;
 import okio.BufferedSource;
 import org.slf4j.Logger;
@@ -27,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static okhttp3.internal.http.HttpHeaders.hasBody;
+
 public abstract class LoggingApiClient extends NamespacedApiClient {
 
     Logger LOG = LoggerFactory.getLogger(LocalKubeconfigApiClient.class);
@@ -37,8 +37,9 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
 
     @PostConstruct
     public void init() {
-        getHttpClient().setConnectTimeout(10, TimeUnit.SECONDS);
-        getHttpClient().setReadTimeout(300, TimeUnit.SECONDS);
+        setHttpClient(getHttpClient().newBuilder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .readTimeout(300, TimeUnit.SECONDS).build());
 
         if (logHttp) {
             for (Interceptor interceptor : getHttpClient().interceptors()) {
@@ -67,7 +68,7 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(gkm(cert, key), tmf.getTrustManagers(), new SecureRandom());
 
-        getHttpClient().setSslSocketFactory(sslContext.getSocketFactory());
+        setHttpClient(getHttpClient().newBuilder().sslSocketFactory(sslContext.getSocketFactory()).build());
 
     }
 
@@ -116,7 +117,7 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
             HttpLoggingInterceptor.Level level = this.level;
 
             Request request = chain.request();
-            if (level == HttpLoggingInterceptor.Level.NONE || request.urlString().contains("watch=true")) {
+            if (level == HttpLoggingInterceptor.Level.NONE || request.url().toString().contains("watch=true")) {
                 return chain.proceed(request);
             }
 
@@ -127,9 +128,9 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
             boolean hasRequestBody = requestBody != null;
 
             Connection connection = chain.connection();
-            Protocol protocol = connection != null ? connection.getProtocol() : Protocol.HTTP_1_1;
+            Protocol protocol = connection != null ? connection.protocol() : Protocol.HTTP_1_1;
             String requestStartMessage =
-                    "--> " + request.method() + ' ' + request.httpUrl() + ' ' + protocol(protocol);
+                    "--> " + request.method() + ' ' + request.url() + ' ' + protocol(protocol);
             if (!logHeaders && hasRequestBody) {
                 requestStartMessage += " (" + requestBody.contentLength() + "-byte body)";
             }
@@ -193,7 +194,7 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
                     LOG.info(headers.name(i) + ": " + headers.value(i));
                 }
 
-                if (!logBody || !HttpEngine.hasBody(response) || "websocket".equals(headers.get("Upgrade"))) {
+                if (!logBody || !hasBody(response) || "websocket".equals(headers.get("Upgrade"))) {
                     LOG.info("<-- END HTTP");
                 } else if (bodyEncoded(response.headers())) {
                     LOG.info("<-- END HTTP (encoded body omitted)");

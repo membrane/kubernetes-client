@@ -8,8 +8,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.JSON;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.JSON;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 

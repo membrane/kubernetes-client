@@ -1,6 +1,6 @@
 package de.predic8.kubernetesclient.util;
 
-import io.kubernetes.client.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1Pod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

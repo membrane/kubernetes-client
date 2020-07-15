@@ -2,10 +2,11 @@ package de.predic8.kubernetesclient;
 
 import com.google.gson.reflect.TypeToken;
 import io.kubernetes.client.*;
-import io.kubernetes.client.apis.CoreV1Api;
-import io.kubernetes.client.models.V1DeleteOptions;
-import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.models.V1Status;
+import io.kubernetes.client.openapi.*;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1DeleteOptions;
+import io.kubernetes.client.openapi.models.V1Pod;
+import okhttp3.Call;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -31,12 +32,12 @@ public class CustomCoreV1Api extends CoreV1Api {
     }
 
     public ApiResponse<V1Pod> deleteNamespacedPodWithHttpInfo2(String name, String namespace, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy) throws ApiException {
-        com.squareup.okhttp.Call call = deleteNamespacedPodValidateBeforeCall2(name, namespace, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, null, null);
+        Call call = deleteNamespacedPodValidateBeforeCall2(name, namespace, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, null);
         Type localVarReturnType = new TypeToken<V1Pod>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
 
-    private com.squareup.okhttp.Call deleteNamespacedPodValidateBeforeCall2(String name, String namespace, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call deleteNamespacedPodValidateBeforeCall2(String name, String namespace, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy, final ApiCallback apiCallback) throws ApiException {
 
         // verify the required parameter 'name' is set
         if (name == null) {
@@ -54,7 +55,7 @@ public class CustomCoreV1Api extends CoreV1Api {
         }
 
 
-        com.squareup.okhttp.Call call = deleteNamespacedPodCall(name, namespace, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, progressListener, progressRequestListener);
+        Call call = deleteNamespacedPodCall(name, namespace, pretty, null, gracePeriodSeconds, orphanDependents, propagationPolicy, body, apiCallback);
         return call;
     }
 

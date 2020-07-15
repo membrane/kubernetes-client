@@ -13,25 +13,21 @@ limitations under the License.
 package de.predic8.kubernetesclient.patch;
 
 import com.google.common.net.HttpHeaders;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
-import com.squareup.okhttp.ws.WebSocket;
-import com.squareup.okhttp.ws.WebSocketCall;
-import com.squareup.okhttp.ws.WebSocketListener;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.Pair;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.Pair;
+import okhttp3.*;
 import okio.Buffer;
-import org.apache.log4j.Logger;
+import okio.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.squareup.okhttp.ws.WebSocket.BINARY;
-import static com.squareup.okhttp.ws.WebSocket.TEXT;
 
 public class WebSockets {
     public static final String V4_STREAM_PROTOCOL = "v4.channel.k8s.io";
@@ -41,7 +37,7 @@ public class WebSockets {
     public static final String STREAM_PROTOCOL_HEADER = "X-Stream-Protocol-Version";
     public static final String SPDY_3_1 = "SPDY/3.1";
 
-    private static final Logger log = Logger.getLogger(WebSockets.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSockets.class);
 
     /**
      * Create a new WebSocket stream
@@ -63,7 +59,7 @@ public class WebSockets {
         headers.put(HttpHeaders.UPGRADE, SPDY_3_1);
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        Request request = client.buildRequest(path, method, queryParams, new ArrayList<Pair>(), null, headers, new HashMap<String, Object>(), localVarAuthNames, null);
+        Request request = client.buildRequest(path, method, queryParams, new ArrayList<Pair>(), null, headers, new HashMap<String, String>(), new HashMap<String, Object>(), localVarAuthNames, null);
         return streamRequest(request, client, listener);
     }
 
@@ -75,20 +71,19 @@ public class WebSockets {
     */
 
     private static Listener streamRequest(Request request, ApiClient client, io.kubernetes.client.util.WebSockets.SocketListener listener) {
-        WebSocketCall webSocketCall = WebSocketCall.create(client.getHttpClient(), request);
-        Listener listener1 = new Listener(listener, webSocketCall);
-        webSocketCall.enqueue(listener1);
+        Listener listener1 = new Listener(listener);
+        WebSocket webSocket = client.getHttpClient().newWebSocket(request, listener1);
+        listener1.setWebSocket(webSocket);
         return listener1;
     }
 
-    public static class Listener implements WebSocketListener {
+    public static class Listener extends WebSocketListener {
         private io.kubernetes.client.util.WebSockets.SocketListener listener;
-        private WebSocketCall webSocketCall;
         private volatile boolean isCancelled;
+        private volatile WebSocket webSocket;
 
-        public Listener(io.kubernetes.client.util.WebSockets.SocketListener listener, WebSocketCall webSocketCall) {
+        public Listener(io.kubernetes.client.util.WebSockets.SocketListener listener) {
             this.listener = listener;
-            this.webSocketCall = webSocketCall;
         }
 
         @Override
@@ -98,21 +93,17 @@ public class WebSockets {
         }
 
         @Override
-        public void onMessage(ResponseBody body) throws IOException {
-            if (body.contentType() == TEXT) {
-                listener.textMessage(body.charStream());
-            } else if (body.contentType() == BINARY) {
-                listener.bytesMessage(body.byteStream());
-            }
-            body.close();
+        public void onMessage(WebSocket webSocket, String text) {
+            listener.textMessage(new StringReader(text));
         }
 
         @Override
-        public void onPong(Buffer payload) {
+        public void onMessage(WebSocket webSocket, ByteString bytes) {
+            listener.bytesMessage(new ByteArrayInputStream(bytes.toByteArray()));
         }
 
         @Override
-        public void onClose(int code, String reason) {
+        public void onClosing(WebSocket webSocket, int code, String reason) {
             try {
                 // This waits until the client pump had a change to pump the data
                 log.debug("received close(), waiting 2 seconds...");
@@ -120,11 +111,15 @@ public class WebSockets {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+
+        @Override
+        public void onClosed(WebSocket webSocket, int code, String reason) {
             listener.close();
         }
 
         @Override
-        public void onFailure(IOException e, Response res) {
+        public void onFailure(WebSocket webSocket, Throwable e, Response res) {
             if (!isCancelled)
                 e.printStackTrace();
             listener.close();
@@ -132,7 +127,11 @@ public class WebSockets {
 
         public void cancel() {
             isCancelled = true;
-            webSocketCall.cancel();
+            webSocket.cancel();
+        }
+
+        public void setWebSocket(WebSocket webSocket) {
+            this.webSocket = webSocket;
         }
     }
 }

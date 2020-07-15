@@ -3,11 +3,14 @@ package de.predic8.kubernetesclient.genericapi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.squareup.okhttp.Call;
 import io.kubernetes.client.*;
-import io.kubernetes.client.models.V1DeleteOptions;
-import io.kubernetes.client.models.V1Status;
+import io.kubernetes.client.openapi.*;
+import io.kubernetes.client.openapi.models.V1DeleteOptions;
+import io.kubernetes.client.openapi.models.V1Status;
 import io.kubernetes.client.util.Watch;
+import okhttp3.Call;
+import okhttp3.Interceptor;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -37,11 +40,11 @@ public class ArbitraryResourceApi<T> {
         return resp.getData();
     }
     public ApiResponse<T> createWithHttpInfo(String namespace, T body, String pretty) throws ApiException {
-        com.squareup.okhttp.Call call = createValidateBeforeCall(namespace, body, pretty, null, null);
+        Call call = createValidateBeforeCall(namespace, body, pretty, null);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
-    private com.squareup.okhttp.Call createValidateBeforeCall(String namespace, T body, String pretty, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call createValidateBeforeCall(String namespace, T body, String pretty, ApiCallback apiCallback) throws ApiException {
 
         // verify the required parameter 'body' is set
         if (body == null) {
@@ -49,7 +52,7 @@ public class ArbitraryResourceApi<T> {
         }
 
 
-        com.squareup.okhttp.Call call = createCall(namespace, body, pretty, progressListener, progressRequestListener);
+        Call call = createCall(namespace, body, pretty, apiCallback);
         return call;
 
     }
@@ -66,7 +69,7 @@ public class ArbitraryResourceApi<T> {
         return "/apis/" + apiGroup;
     }
 
-    public com.squareup.okhttp.Call createCall(String namespace, T body, String pretty, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    public Call createCall(String namespace, T body, String pretty, ApiCallback apiCallback) throws ApiException {
         Object localVarPostBody = body;
 
         // create path and map variables
@@ -93,20 +96,20 @@ public class ArbitraryResourceApi<T> {
         final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        if(progressListener != null) {
-            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+        if(apiCallback != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
-                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                            .body(new ProgressResponseBody(originalResponse.body(), apiCallback))
                             .build();
                 }
             });
         }
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        return apiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+        return apiClient.buildCall(localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, new HashMap<String,String>(), localVarFormParams, localVarAuthNames, apiCallback);
     }
 
     /**
@@ -120,12 +123,10 @@ public class ArbitraryResourceApi<T> {
      * @param resourceVersion When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it&#39;s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv. (optional)
      * @param timeoutSeconds Timeout for the list/watch call. (optional)
      * @param watch Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion. (optional)
-     * @param progressListener Progress listener
-     * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      */
-    public com.squareup.okhttp.Call deleteCollectionCall(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    public Call deleteCollectionCall(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ApiCallback apiCallback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
@@ -168,27 +169,27 @@ public class ArbitraryResourceApi<T> {
         final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        if(progressListener != null) {
-            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+        if(apiCallback != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
-                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                            .body(new ProgressResponseBody(originalResponse.body(), apiCallback))
                             .build();
                 }
             });
         }
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        return apiClient.buildCall(localVarPath, "DELETE", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+        return apiClient.buildCall(localVarPath, "DELETE", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, new HashMap<String, String>(), localVarFormParams, localVarAuthNames, apiCallback);
     }
 
     @SuppressWarnings("rawtypes")
-    private com.squareup.okhttp.Call deleteCollectionValidateBeforeCall(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call deleteCollectionValidateBeforeCall(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, ApiCallback apiCallback) throws ApiException {
 
 
-        com.squareup.okhttp.Call call = deleteCollectionCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, progressListener, progressRequestListener);
+        Call call = deleteCollectionCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, apiCallback);
         return call;
 
 
@@ -233,7 +234,7 @@ public class ArbitraryResourceApi<T> {
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ApiResponse<V1Status> deleteCollectionWithHttpInfo(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch) throws ApiException {
-        com.squareup.okhttp.Call call = deleteCollectionValidateBeforeCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, null, null);
+        Call call = deleteCollectionValidateBeforeCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, null);
         Type localVarReturnType = new TypeToken<V1Status>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
@@ -254,28 +255,8 @@ public class ArbitraryResourceApi<T> {
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      */
-    public com.squareup.okhttp.Call deleteCollectionAsync(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ApiCallback<V1Status> callback) throws ApiException {
-
-        ProgressResponseBody.ProgressListener progressListener = null;
-        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
-
-        if (callback != null) {
-            progressListener = new ProgressResponseBody.ProgressListener() {
-                @Override
-                public void update(long bytesRead, long contentLength, boolean done) {
-                    callback.onDownloadProgress(bytesRead, contentLength, done);
-                }
-            };
-
-            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
-                @Override
-                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
-                    callback.onUploadProgress(bytesWritten, contentLength, done);
-                }
-            };
-        }
-
-        com.squareup.okhttp.Call call = deleteCollectionValidateBeforeCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, progressListener, progressRequestListener);
+    public Call deleteCollectionAsync(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ApiCallback<V1Status> callback) throws ApiException {
+        Call call = deleteCollectionValidateBeforeCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, callback);
         Type localVarReturnType = new TypeToken<V1Status>(){}.getType();
         apiClient.executeAsync(call, localVarReturnType, callback);
         return call;
@@ -288,12 +269,10 @@ public class ArbitraryResourceApi<T> {
      * @param gracePeriodSeconds The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately. (optional)
      * @param orphanDependents Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the \&quot;orphan\&quot; finalizer will be added to/removed from the object&#39;s finalizers list. Either this field or PropagationPolicy may be set, but not both. (optional)
      * @param propagationPolicy Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. (optional)
-     * @param progressListener Progress listener
-     * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      */
-    public com.squareup.okhttp.Call deleteCall(String namespace, String name, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    public Call deleteCall(String namespace, String name, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy, ApiCallback apiCallback) throws ApiException {
         Object localVarPostBody = body;
 
         // create path and map variables
@@ -327,24 +306,24 @@ public class ArbitraryResourceApi<T> {
         final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        if(progressListener != null) {
-            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+        if(apiCallback != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
-                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                            .body(new ProgressResponseBody(originalResponse.body(), apiCallback))
                             .build();
                 }
             });
         }
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        return apiClient.buildCall(localVarPath, "DELETE", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+        return apiClient.buildCall(localVarPath, "DELETE", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, new HashMap<String, String>(), localVarFormParams, localVarAuthNames, apiCallback);
     }
 
     @SuppressWarnings("rawtypes")
-    private com.squareup.okhttp.Call deleteValidateBeforeCall(String namespace, String name, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call deleteValidateBeforeCall(String namespace, String name, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy, ApiCallback apiCallback) throws ApiException {
 
         // verify the required parameter 'name' is set
         if (name == null) {
@@ -357,7 +336,7 @@ public class ArbitraryResourceApi<T> {
         }
 
 
-        com.squareup.okhttp.Call call = deleteCall(namespace, name, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, progressListener, progressRequestListener);
+        Call call = deleteCall(namespace, name, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, apiCallback);
         return call;
 
 
@@ -396,7 +375,7 @@ public class ArbitraryResourceApi<T> {
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ApiResponse<V1Status> deleteWithHttpInfo(String namespace, String name, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy) throws ApiException {
-        com.squareup.okhttp.Call call = deleteValidateBeforeCall(namespace, name, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, null, null);
+        Call call = deleteValidateBeforeCall(namespace, name, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, null);
         Type localVarReturnType = new TypeToken<V1Status>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
@@ -414,28 +393,8 @@ public class ArbitraryResourceApi<T> {
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      */
-    public com.squareup.okhttp.Call deleteAsync(String namespace, String name, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy, final ApiCallback<V1Status> callback) throws ApiException {
-
-        ProgressResponseBody.ProgressListener progressListener = null;
-        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
-
-        if (callback != null) {
-            progressListener = new ProgressResponseBody.ProgressListener() {
-                @Override
-                public void update(long bytesRead, long contentLength, boolean done) {
-                    callback.onDownloadProgress(bytesRead, contentLength, done);
-                }
-            };
-
-            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
-                @Override
-                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
-                    callback.onUploadProgress(bytesWritten, contentLength, done);
-                }
-            };
-        }
-
-        com.squareup.okhttp.Call call = deleteValidateBeforeCall(namespace, name, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, progressListener, progressRequestListener);
+    public Call deleteAsync(String namespace, String name, V1DeleteOptions body, String pretty, Integer gracePeriodSeconds, Boolean orphanDependents, String propagationPolicy, final ApiCallback<V1Status> callback) throws ApiException {
+        Call call = deleteValidateBeforeCall(namespace, name, body, pretty, gracePeriodSeconds, orphanDependents, propagationPolicy, callback);
         Type localVarReturnType = new TypeToken<V1Status>(){}.getType();
         apiClient.executeAsync(call, localVarReturnType, callback);
         return call;
@@ -452,12 +411,10 @@ public class ArbitraryResourceApi<T> {
      * @param resourceVersion When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it&#39;s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv. (optional)
      * @param timeoutSeconds Timeout for the list/watch call. (optional)
      * @param watch Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion. (optional)
-     * @param progressListener Progress listener
-     * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      */
-    public com.squareup.okhttp.Call listCall(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    public Call listCall(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, ApiCallback apiCallback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
@@ -500,33 +457,28 @@ public class ArbitraryResourceApi<T> {
         final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        if(progressListener != null) {
-            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+        if(apiCallback != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
-                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                            .body(new ProgressResponseBody(originalResponse.body(), apiCallback))
                             .build();
                 }
             });
         }
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        return apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+        return apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, new HashMap<String, String>(), localVarFormParams, localVarAuthNames, apiCallback);
     }
 
     @SuppressWarnings("rawtypes")
-    private com.squareup.okhttp.Call listValidateBeforeCall(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call listValidateBeforeCall(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, ApiCallback apiCallback) throws ApiException {
 
 
-        com.squareup.okhttp.Call call = listCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, progressListener, progressRequestListener);
+        Call call = listCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, apiCallback);
         return call;
-
-
-
-
-
     }
 
     /**
@@ -541,7 +493,7 @@ public class ArbitraryResourceApi<T> {
      * @param resourceVersion When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it&#39;s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv. (optional)
      * @param timeoutSeconds Timeout for the list/watch call. (optional)
      * @param watch Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion. (optional)
-     * @return V1beta1CustomResourceDefinitionList
+     * @return V1CustomResourceDefinitionList
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ARList<T> list(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch) throws ApiException {
@@ -561,37 +513,18 @@ public class ArbitraryResourceApi<T> {
      * @param resourceVersion When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it&#39;s 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv. (optional)
      * @param timeoutSeconds Timeout for the list/watch call. (optional)
      * @param watch Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion. (optional)
-     * @return ApiResponse&lt;V1beta1CustomResourceDefinitionList&gt;
+     * @return ApiResponse&lt;V1CustomResourceDefinitionList&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ApiResponse<ARList<T>> listWithHttpInfo(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch) throws ApiException {
-        com.squareup.okhttp.Call call = listValidateBeforeCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, null, null);
+        Call call = listValidateBeforeCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, null);
         Type localVarReturnType = new TypeToken<ARList<T>>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
 
-    public com.squareup.okhttp.Call listAsync(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ApiCallback<ARList<T>> callback) throws ApiException {
+    public Call listAsync(String namespace, String pretty, String _continue, String fieldSelector, Boolean includeUninitialized, String labelSelector, Integer limit, String resourceVersion, Integer timeoutSeconds, Boolean watch, final ApiCallback<ARList<T>> callback) throws ApiException {
 
-        ProgressResponseBody.ProgressListener progressListener = null;
-        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
-
-        if (callback != null) {
-            progressListener = new ProgressResponseBody.ProgressListener() {
-                @Override
-                public void update(long bytesRead, long contentLength, boolean done) {
-                    callback.onDownloadProgress(bytesRead, contentLength, done);
-                }
-            };
-
-            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
-                @Override
-                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
-                    callback.onUploadProgress(bytesWritten, contentLength, done);
-                }
-            };
-        }
-
-        com.squareup.okhttp.Call call = listValidateBeforeCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, progressListener, progressRequestListener);
+        Call call = listValidateBeforeCall(namespace, pretty, _continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch, callback);
         Type localVarReturnType = new TypeToken<ARList<T>>(){}.getType();
         apiClient.executeAsync(call, localVarReturnType, callback);
         return call;
@@ -601,12 +534,10 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @param progressListener Progress listener
-     * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      */
-    public com.squareup.okhttp.Call patchCall(String namespace, String name, Object body, String pretty, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    public Call patchCall(String namespace, String name, Object body, String pretty, ApiCallback apiCallback) throws ApiException {
         Object localVarPostBody = body;
 
         // create path and map variables
@@ -634,24 +565,24 @@ public class ArbitraryResourceApi<T> {
         final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        if(progressListener != null) {
-            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+        if(apiCallback != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
-                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                            .body(new ProgressResponseBody(originalResponse.body(), apiCallback))
                             .build();
                 }
             });
         }
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        return apiClient.buildCall(localVarPath, "PATCH", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+        return apiClient.buildCall(localVarPath, "PATCH", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, new HashMap<String, String>(), localVarFormParams, localVarAuthNames, apiCallback);
     }
 
     @SuppressWarnings("rawtypes")
-    private com.squareup.okhttp.Call patchValidateBeforeCall(String namespace, String name, Object body, String pretty, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call patchValidateBeforeCall(String namespace, String name, Object body, String pretty, ApiCallback apiCallback) throws ApiException {
 
         // verify the required parameter 'name' is set
         if (name == null) {
@@ -664,7 +595,7 @@ public class ArbitraryResourceApi<T> {
         }
 
 
-        com.squareup.okhttp.Call call = patchCall(namespace, name, body, pretty, progressListener, progressRequestListener);
+        Call call = patchCall(namespace, name, body, pretty, apiCallback);
         return call;
 
 
@@ -679,7 +610,7 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @return V1beta1CustomResourceDefinition
+     * @return V1CustomResourceDefinition
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public T patch(String namespace, String name, Object body, String pretty) throws ApiException {
@@ -693,11 +624,11 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @return ApiResponse&lt;V1beta1CustomResourceDefinition&gt;
+     * @return ApiResponse&lt;V1CustomResourceDefinition&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ApiResponse<T> patchWithHttpInfo(String namespace, String name, Object body, String pretty) throws ApiException {
-        com.squareup.okhttp.Call call = patchValidateBeforeCall(namespace, name, body, pretty, null, null);
+        Call call = patchValidateBeforeCall(namespace, name, body, pretty, null);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
@@ -712,28 +643,8 @@ public class ArbitraryResourceApi<T> {
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      */
-    public com.squareup.okhttp.Call patchAsync(String namespace, String name, Object body, String pretty, final ApiCallback<T> callback) throws ApiException {
-
-        ProgressResponseBody.ProgressListener progressListener = null;
-        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
-
-        if (callback != null) {
-            progressListener = new ProgressResponseBody.ProgressListener() {
-                @Override
-                public void update(long bytesRead, long contentLength, boolean done) {
-                    callback.onDownloadProgress(bytesRead, contentLength, done);
-                }
-            };
-
-            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
-                @Override
-                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
-                    callback.onUploadProgress(bytesWritten, contentLength, done);
-                }
-            };
-        }
-
-        com.squareup.okhttp.Call call = patchValidateBeforeCall(namespace, name, body, pretty, progressListener, progressRequestListener);
+    public Call patchAsync(String namespace, String name, Object body, String pretty, final ApiCallback<T> callback) throws ApiException {
+        Call call = patchValidateBeforeCall(namespace, name, body, pretty, callback);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         apiClient.executeAsync(call, localVarReturnType, callback);
         return call;
@@ -744,12 +655,10 @@ public class ArbitraryResourceApi<T> {
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
      * @param exact Should the export be exact.  Exact export maintains cluster-specific fields like &#39;Namespace&#39;. (optional)
      * @param export Should this value be exported.  Export strips fields that a user can not specify. (optional)
-     * @param progressListener Progress listener
-     * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      */
-    public com.squareup.okhttp.Call readCall(String namespace, String name, String pretty, Boolean exact, Boolean export, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    public Call readCall(String namespace, String name, String pretty, Boolean exact, Boolean export, ApiCallback apiCallback) throws ApiException {
         Object localVarPostBody = null;
 
         // create path and map variables
@@ -781,24 +690,24 @@ public class ArbitraryResourceApi<T> {
         final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        if(progressListener != null) {
-            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+        if(apiCallback != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
-                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                            .body(new ProgressResponseBody(originalResponse.body(), apiCallback))
                             .build();
                 }
             });
         }
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        return apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+        return apiClient.buildCall(localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, new HashMap<String, String>(), localVarFormParams, localVarAuthNames, apiCallback);
     }
 
     @SuppressWarnings("rawtypes")
-    private com.squareup.okhttp.Call readValidateBeforeCall(String namespace, String name, String pretty, Boolean exact, Boolean export, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call readValidateBeforeCall(String namespace, String name, String pretty, Boolean exact, Boolean export, ApiCallback apiCallback) throws ApiException {
 
         // verify the required parameter 'name' is set
         if (name == null) {
@@ -806,7 +715,7 @@ public class ArbitraryResourceApi<T> {
         }
 
 
-        com.squareup.okhttp.Call call = readCall(namespace, name, pretty, exact, export, progressListener, progressRequestListener);
+        Call call = readCall(namespace, name, pretty, exact, export, apiCallback);
         return call;
 
 
@@ -822,7 +731,7 @@ public class ArbitraryResourceApi<T> {
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
      * @param exact Should the export be exact.  Exact export maintains cluster-specific fields like &#39;Namespace&#39;. (optional)
      * @param export Should this value be exported.  Export strips fields that a user can not specify. (optional)
-     * @return V1beta1CustomResourceDefinition
+     * @return V1CustomResourceDefinition
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public T read(String namespace, String name, String pretty, Boolean exact, Boolean export) throws ApiException {
@@ -837,11 +746,11 @@ public class ArbitraryResourceApi<T> {
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
      * @param exact Should the export be exact.  Exact export maintains cluster-specific fields like &#39;Namespace&#39;. (optional)
      * @param export Should this value be exported.  Export strips fields that a user can not specify. (optional)
-     * @return ApiResponse&lt;V1beta1CustomResourceDefinition&gt;
+     * @return ApiResponse&lt;V1CustomResourceDefinition&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ApiResponse<T> readWithHttpInfo(String namespace, String name, String pretty, Boolean exact, Boolean export) throws ApiException {
-        com.squareup.okhttp.Call call = readValidateBeforeCall(namespace, name, pretty, exact, export, null, null);
+        Call call = readValidateBeforeCall(namespace, name, pretty, exact, export, null);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
@@ -857,28 +766,11 @@ public class ArbitraryResourceApi<T> {
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      */
-    public com.squareup.okhttp.Call readAsync(String namespace, String name, String pretty, Boolean exact, Boolean export, final ApiCallback<T> callback) throws ApiException {
+    public Call readAsync(String namespace, String name, String pretty, Boolean exact, Boolean export, final ApiCallback<T> callback) throws ApiException {
 
-        ProgressResponseBody.ProgressListener progressListener = null;
-        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
 
-        if (callback != null) {
-            progressListener = new ProgressResponseBody.ProgressListener() {
-                @Override
-                public void update(long bytesRead, long contentLength, boolean done) {
-                    callback.onDownloadProgress(bytesRead, contentLength, done);
-                }
-            };
 
-            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
-                @Override
-                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
-                    callback.onUploadProgress(bytesWritten, contentLength, done);
-                }
-            };
-        }
-
-        com.squareup.okhttp.Call call = readValidateBeforeCall(namespace, name, pretty, exact, export, progressListener, progressRequestListener);
+        Call call = readValidateBeforeCall(namespace, name, pretty, exact, export, callback);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         apiClient.executeAsync(call, localVarReturnType, callback);
         return call;
@@ -888,12 +780,10 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @param progressListener Progress listener
-     * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      */
-    public com.squareup.okhttp.Call replaceCall(String namespace, String name, T body, String pretty, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    public Call replaceCall(String namespace, String name, T body, String pretty, ApiCallback apiCallback) throws ApiException {
         Object localVarPostBody = body;
 
         // create path and map variables
@@ -921,24 +811,24 @@ public class ArbitraryResourceApi<T> {
         final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        if(progressListener != null) {
-            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+        if(apiCallback != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
-                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                            .body(new ProgressResponseBody(originalResponse.body(), apiCallback))
                             .build();
                 }
             });
         }
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        return apiClient.buildCall(localVarPath, "PUT", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+        return apiClient.buildCall(localVarPath, "PUT", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, new HashMap<String, String>(), localVarFormParams, localVarAuthNames, apiCallback);
     }
 
     @SuppressWarnings("rawtypes")
-    private com.squareup.okhttp.Call replaceValidateBeforeCall(String namespace, String name, T body, String pretty, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call replaceValidateBeforeCall(String namespace, String name, T body, String pretty, ApiCallback apiCallback) throws ApiException {
 
         // verify the required parameter 'name' is set
         if (name == null) {
@@ -951,7 +841,7 @@ public class ArbitraryResourceApi<T> {
         }
 
 
-        com.squareup.okhttp.Call call = replaceCall(namespace, name, body, pretty, progressListener, progressRequestListener);
+        Call call = replaceCall(namespace, name, body, pretty, apiCallback);
         return call;
 
 
@@ -966,7 +856,7 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @return V1beta1CustomResourceDefinition
+     * @return V1CustomResourceDefinition
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public T replace(String namespace, String name, T body, String pretty) throws ApiException {
@@ -980,11 +870,11 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @return ApiResponse&lt;V1beta1CustomResourceDefinition&gt;
+     * @return ApiResponse&lt;V1CustomResourceDefinition&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ApiResponse<T> replaceWithHttpInfo(String namespace, String name, T body, String pretty) throws ApiException {
-        com.squareup.okhttp.Call call = replaceValidateBeforeCall(namespace, name, body, pretty, null, null);
+        Call call = replaceValidateBeforeCall(namespace, name, body, pretty, null);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
@@ -999,28 +889,8 @@ public class ArbitraryResourceApi<T> {
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      */
-    public com.squareup.okhttp.Call replaceAsync(String namespace, String name, T body, String pretty, final ApiCallback<T> callback) throws ApiException {
-
-        ProgressResponseBody.ProgressListener progressListener = null;
-        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
-
-        if (callback != null) {
-            progressListener = new ProgressResponseBody.ProgressListener() {
-                @Override
-                public void update(long bytesRead, long contentLength, boolean done) {
-                    callback.onDownloadProgress(bytesRead, contentLength, done);
-                }
-            };
-
-            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
-                @Override
-                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
-                    callback.onUploadProgress(bytesWritten, contentLength, done);
-                }
-            };
-        }
-
-        com.squareup.okhttp.Call call = replaceValidateBeforeCall(namespace, name, body, pretty, progressListener, progressRequestListener);
+    public Call replaceAsync(String namespace, String name, T body, String pretty, final ApiCallback<T> callback) throws ApiException {
+        Call call = replaceValidateBeforeCall(namespace, name, body, pretty, callback);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         apiClient.executeAsync(call, localVarReturnType, callback);
         return call;
@@ -1030,12 +900,10 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @param progressListener Progress listener
-     * @param progressRequestListener Progress request listener
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      */
-    public com.squareup.okhttp.Call replaceStatusCall(String namespace, String name, T body, String pretty, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    public Call replaceStatusCall(String namespace, String name, T body, String pretty, ApiCallback apiCallback) throws ApiException {
         Object localVarPostBody = body;
 
         // create path and map variables
@@ -1063,24 +931,24 @@ public class ArbitraryResourceApi<T> {
         final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
         localVarHeaderParams.put("Content-Type", localVarContentType);
 
-        if(progressListener != null) {
-            apiClient.getHttpClient().networkInterceptors().add(new com.squareup.okhttp.Interceptor() {
+        if(apiCallback != null) {
+            apiClient.getHttpClient().networkInterceptors().add(new Interceptor() {
                 @Override
-                public com.squareup.okhttp.Response intercept(com.squareup.okhttp.Interceptor.Chain chain) throws IOException {
-                    com.squareup.okhttp.Response originalResponse = chain.proceed(chain.request());
+                public Response intercept(Interceptor.Chain chain) throws IOException {
+                    Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                            .body(new ProgressResponseBody(originalResponse.body(), apiCallback))
                             .build();
                 }
             });
         }
 
         String[] localVarAuthNames = new String[] { "BearerToken" };
-        return apiClient.buildCall(localVarPath, "PUT", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames, progressRequestListener);
+        return apiClient.buildCall(localVarPath, "PUT", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, new HashMap<String, String>(), localVarFormParams, localVarAuthNames, apiCallback);
     }
 
     @SuppressWarnings("rawtypes")
-    private com.squareup.okhttp.Call replaceStatusValidateBeforeCall(String namespace, String name, T body, String pretty, final ProgressResponseBody.ProgressListener progressListener, final ProgressRequestBody.ProgressRequestListener progressRequestListener) throws ApiException {
+    private Call replaceStatusValidateBeforeCall(String namespace, String name, T body, String pretty, ApiCallback apiCallback) throws ApiException {
 
         // verify the required parameter 'name' is set
         if (name == null) {
@@ -1093,7 +961,7 @@ public class ArbitraryResourceApi<T> {
         }
 
 
-        com.squareup.okhttp.Call call = replaceStatusCall(namespace, name, body, pretty, progressListener, progressRequestListener);
+        Call call = replaceStatusCall(namespace, name, body, pretty, apiCallback);
         return call;
 
 
@@ -1108,7 +976,7 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @return V1beta1CustomResourceDefinition
+     * @return V1CustomResourceDefinition
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public T replaceStatus(String namespace, String name, T body, String pretty) throws ApiException {
@@ -1122,11 +990,11 @@ public class ArbitraryResourceApi<T> {
      * @param name name of the CustomResourceDefinition (required)
      * @param body  (required)
      * @param pretty If &#39;true&#39;, then the output is pretty printed. (optional)
-     * @return ApiResponse&lt;V1beta1CustomResourceDefinition&gt;
+     * @return ApiResponse&lt;V1CustomResourceDefinition&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ApiResponse<T> replaceStatusWithHttpInfo(String namespace, String name, T body, String pretty) throws ApiException {
-        com.squareup.okhttp.Call call = replaceStatusValidateBeforeCall(namespace, name, body, pretty, null, null);
+        Call call = replaceStatusValidateBeforeCall(namespace, name, body, pretty, null);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         return apiClient.execute(call, localVarReturnType);
     }
@@ -1141,28 +1009,9 @@ public class ArbitraryResourceApi<T> {
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      */
-    public com.squareup.okhttp.Call replaceStatusAsync(String namespace, String name, T body, String pretty, final ApiCallback<T> callback) throws ApiException {
+    public Call replaceStatusAsync(String namespace, String name, T body, String pretty, final ApiCallback<T> callback) throws ApiException {
 
-        ProgressResponseBody.ProgressListener progressListener = null;
-        ProgressRequestBody.ProgressRequestListener progressRequestListener = null;
-
-        if (callback != null) {
-            progressListener = new ProgressResponseBody.ProgressListener() {
-                @Override
-                public void update(long bytesRead, long contentLength, boolean done) {
-                    callback.onDownloadProgress(bytesRead, contentLength, done);
-                }
-            };
-
-            progressRequestListener = new ProgressRequestBody.ProgressRequestListener() {
-                @Override
-                public void onRequestProgress(long bytesWritten, long contentLength, boolean done) {
-                    callback.onUploadProgress(bytesWritten, contentLength, done);
-                }
-            };
-        }
-
-        com.squareup.okhttp.Call call = replaceStatusValidateBeforeCall(namespace, name, body, pretty, progressListener, progressRequestListener);
+        Call call = replaceStatusValidateBeforeCall(namespace, name, body, pretty, callback);
         Type localVarReturnType = new TypeToken<T>(){}.getType();
         apiClient.executeAsync(call, localVarReturnType, callback);
         return call;
@@ -1180,7 +1029,7 @@ public class ArbitraryResourceApi<T> {
     }
 
     public AsyncWatcher watchAsync(String namespace, String resourceVersion, Class<T> clazz, String fieldSelector, String labelSelector, Watcher<T> watcher) throws ApiException {
-        Call call = listCall(namespace, null, null, fieldSelector, true, labelSelector, null, resourceVersion, 0, true, null, null);
+        Call call = listCall(namespace, null, null, fieldSelector, true, labelSelector, null, resourceVersion, 0, true, null);
         slowApiClient.setConnectTimeout(20000);
 
         Watch<T> watch = Watch.createWatch(slowApiClient,

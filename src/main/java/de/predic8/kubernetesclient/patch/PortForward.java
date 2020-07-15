@@ -1,12 +1,10 @@
 package de.predic8.kubernetesclient.patch;
 
-import com.google.common.base.Ascii;
-import com.squareup.okhttp.ws.WebSocketCall;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.Configuration;
-import io.kubernetes.client.Pair;
-import io.kubernetes.client.models.V1Pod;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.Configuration;
+import io.kubernetes.client.openapi.Pair;
+import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.util.WebSocketStreamHandler;
 
 import java.io.EOFException;

@@ -9,12 +9,12 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.ResponseBody;
 import de.predic8.kubernetesclient.CustomCoreV1Api;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.Pair;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.Pair;
+import okhttp3.Call;
+import okhttp3.Request;
+import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +42,7 @@ public class KubernetesVersion {
         Map<String, String> headers = new HashMap<>();
         String[] localVarAuthNames = new String[] { "BearerToken" };
         List<Pair> queryParams = new ArrayList<>();
-        kc.updateParamsForAuth(localVarAuthNames, queryParams, headers);
+        kc.updateParamsForAuth(localVarAuthNames, queryParams, headers, new HashMap<>());
 
         Request.Builder builder = new Request.Builder().url(kc.getBasePath() + "/version");
         for (Map.Entry<String, String> header : headers.entrySet())

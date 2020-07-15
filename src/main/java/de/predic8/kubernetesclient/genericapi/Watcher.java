@@ -1,6 +1,6 @@
 package de.predic8.kubernetesclient.genericapi;
 
-import io.kubernetes.client.ApiException;
+import io.kubernetes.client.openapi.ApiException;
 
 public interface Watcher<T> {
     void eventReceived(Action action, T resource);

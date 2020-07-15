@@ -1,30 +1,31 @@
 package de.predic8.kubernetesclient.util;
 
-import com.squareup.okhttp.Call;
 import de.predic8.kubernetesclient.CustomCoreV1Api;
 import de.predic8.kubernetesclient.genericapi.ArbitraryResourceApi;
 import de.predic8.kubernetesclient.genericapi.AsyncWatcher;
 import de.predic8.kubernetesclient.genericapi.Watcher;
 import de.predic8.kubernetesclient.util.ApiExceptionParser;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.apis.ApiextensionsV1beta1Api;
-import io.kubernetes.client.models.V1DeleteOptions;
-import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.models.V1beta1CustomResourceDefinition;
-import io.kubernetes.client.models.V1beta1CustomResourceDefinitionCondition;
-import org.apache.log4j.Logger;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.ApiextensionsV1Api;
+import io.kubernetes.client.openapi.models.V1DeleteOptions;
+import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1CustomResourceDefinition;
+import io.kubernetes.client.openapi.models.V1CustomResourceDefinitionCondition;
+import okhttp3.Call;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 public class KubeUtil {
-    private static final Logger LOG = Logger.getLogger(KubeUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KubeUtil.class);
 
     @Autowired
     ApiClient apiClient;
 
     @Autowired
-    ApiextensionsV1beta1Api api;
+    ApiextensionsV1Api api;
 
     @Autowired
     ApiExceptionParser apiExceptionParser;
@@ -86,9 +87,9 @@ public class KubeUtil {
         }
     }
 
-    public void createCRDAndWaitUntilEstablished(V1beta1CustomResourceDefinition crd) {
+    public void createCRDAndWaitUntilEstablished(V1CustomResourceDefinition crd) {
         try {
-            api.createCustomResourceDefinition(crd, null);
+            api.createCustomResourceDefinition(crd, null, null, null);
         } catch (ApiException e) {
             handleExistsException(e);
         }
@@ -97,14 +98,14 @@ public class KubeUtil {
         // .status.conditions[?(@.type=="Established")].status == 'True'
         OUTER:
         while (true) {
-            V1beta1CustomResourceDefinition crd2 = null;
+            V1CustomResourceDefinition crd2 = null;
             try {
                 crd2 = api.readCustomResourceDefinition(crd.getMetadata().getName(), null, null, null);
             } catch (ApiException e) {
                 e.printStackTrace();
             }
             if (crd2.getStatus() != null && crd2.getStatus().getConditions() != null)
-                for (V1beta1CustomResourceDefinitionCondition condition : crd2.getStatus().getConditions()) {
+                for (V1CustomResourceDefinitionCondition condition : crd2.getStatus().getConditions()) {
                     if ("Established".equals(condition.getType()) && "True".equals(condition.getStatus())) {
                         break OUTER;
                     }
