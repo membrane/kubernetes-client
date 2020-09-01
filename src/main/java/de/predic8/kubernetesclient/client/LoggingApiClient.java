@@ -10,10 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.*;
@@ -68,7 +65,7 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(gkm(cert, key), tmf.getTrustManagers(), new SecureRandom());
 
-        setHttpClient(getHttpClient().newBuilder().sslSocketFactory(sslContext.getSocketFactory()).build());
+        setHttpClient(getHttpClient().newBuilder().sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) tmf.getTrustManagers()[0]).build());
 
     }
 
