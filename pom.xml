@@ -61,4 +61,15 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>predic8-releases</id>
+            <url>https://repository.membrane-soa.org/repository/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>predic8-snapshots</id>
+            <url>https://repository.membrane-soa.org/repository/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
