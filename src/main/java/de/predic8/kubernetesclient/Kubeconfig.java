@@ -65,6 +65,9 @@ public class Kubeconfig {
 
         @JsonProperty("as-user-extra")
         public Map<String, Object> asUserExtra;
+
+        @JsonProperty("token")
+        public String token;
     }
 
     public static class AuthProviderReference {

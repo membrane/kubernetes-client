@@ -6,6 +6,9 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import de.predic8.kubernetesclient.Kubeconfig;
 import de.predic8.kubernetesclient.PEMSupport;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,24 +60,39 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
             String cert = null, key = null;
             Kubeconfig.User user = config.getUser();
             if (user != null) {
-                cert = user.clientCertificate;
-                if (cert == null)
-                    throw new NotImplementedException();
-                File file;
-                if (cert.contains(":\\"))
-                    file = new File(cert);
-                else
-                    file = new File(baseDir, cert);
-                cert = Files.asCharSource(file, Charsets.UTF_8).read();
+                if (user.token != null) {
+                    setHttpClient(getHttpClient().newBuilder().addInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request request = chain.request().newBuilder().header("Authorization", "Bearer " + user.token).build();
+                            return chain.proceed(request);
+                        }
+                    }).build());
+                }
 
-                key = user.clientKey;
-                if (key == null)
-                    throw new NotImplementedException();
-                if (key.contains(":\\"))
-                    file = new File(key);
-                else
-                    file = new File(baseDir, key);
-                key = Files.asCharSource(file, Charsets.UTF_8).read();
+                if (user.clientCertificate != null) {
+                    cert = user.clientCertificate;
+                    if (cert == null)
+                        throw new NotImplementedException();
+                    File file;
+                    if (cert.contains(":\\"))
+                        file = new File(cert);
+                    else
+                        file = new File(baseDir, cert);
+                    cert = Files.asCharSource(file, Charsets.UTF_8).read();
+                }
+
+                if (user.clientKey != null) {
+                    key = user.clientKey;
+                    if (key == null)
+                        throw new NotImplementedException();
+                    File file;
+                    if (key.contains(":\\"))
+                        file = new File(key);
+                    else
+                        file = new File(baseDir, key);
+                    key = Files.asCharSource(file, Charsets.UTF_8).read();
+                }
             }
 
             try {

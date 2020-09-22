@@ -44,7 +44,7 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
                     return;
             }
             Interceptor hli = new LogInterceptor();
-            getHttpClient().interceptors().add(hli);
+            setHttpClient(getHttpClient().newBuilder().addInterceptor(hli).build());
         }
     }
 
