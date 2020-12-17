@@ -18,7 +18,7 @@ public class InClusterApiClient extends LoggingApiClient {
 
     @PostConstruct
     public void init() {
-        setBasePath("https://kubernetes.default.svc.cluster.local");
+        setBasePath("https://kubernetes.default.svc");
 
         try {
             String ca = Files.asCharSource(new File("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"), Charsets.UTF_8).read();
