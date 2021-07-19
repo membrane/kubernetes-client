@@ -1,5 +1,6 @@
 package de.predic8.kubernetesclient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 public class Kubeconfig {
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Cluster {
         @JsonProperty("certificate-authority")
         public String certificateAuthority;
@@ -36,6 +38,7 @@ public class Kubeconfig {
         public String name;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Context {
         public String cluster;
         public String namespace;
@@ -75,9 +78,13 @@ public class Kubeconfig {
         public AuthProvider config;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AuthProvider {
         @JsonProperty("access-token")
         public String accessToken;
+
+        @JsonProperty("id-token")
+        public String idToken;
 
         @JsonProperty("cmd-args")
         public String cmdArgs;

@@ -69,6 +69,16 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
                         }
                     }).build());
                 }
+                if (user.authProvider != null && user.authProvider.config != null && user.authProvider.config.idToken != null) {
+                    setHttpClient(getHttpClient().newBuilder().addInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request request = chain.request().newBuilder().header("Authorization", "Bearer " + user.authProvider.config.idToken).build();
+                            return chain.proceed(request);
+                        }
+                    }).build());
+                }
+
 
                 if (user.clientCertificate != null) {
                     cert = user.clientCertificate;
