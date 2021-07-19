@@ -28,6 +28,7 @@ import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class LocalKubeconfigApiClient extends LoggingApiClient {
@@ -60,25 +61,10 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
             String cert = null, key = null;
             Kubeconfig.User user = config.getUser();
             if (user != null) {
-                if (user.token != null) {
-                    setHttpClient(getHttpClient().newBuilder().addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            Request request = chain.request().newBuilder().header("Authorization", "Bearer " + user.token).build();
-                            return chain.proceed(request);
-                        }
-                    }).build());
-                }
-                if (user.authProvider != null && user.authProvider.config != null && user.authProvider.config.idToken != null) {
-                    setHttpClient(getHttpClient().newBuilder().addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            Request request = chain.request().newBuilder().header("Authorization", "Bearer " + user.authProvider.config.idToken).build();
-                            return chain.proceed(request);
-                        }
-                    }).build());
-                }
-
+                findToken(user).ifPresent(token -> setHttpClient(getHttpClient().newBuilder().addInterceptor(chain -> {
+                    Request request = chain.request().newBuilder().header("Authorization", "Bearer " + token).build();
+                    return chain.proceed(request);
+                }).build()));
 
                 if (user.clientCertificate != null) {
                     cert = user.clientCertificate;
@@ -117,6 +103,15 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
         super.init();
     }
 
+    private Optional<String> findToken(Kubeconfig.User user) {
+        if (user.token != null) {
+            return Optional.of(user.token);
+        }
+        if (user.authProvider != null && user.authProvider.config != null && user.authProvider.config.idToken != null) {
+            return Optional.of(user.authProvider.config.idToken);
+        }
+        return Optional.empty();
+    }
     public String getMyNamespace() {
         if (namespace == null || namespace.equals(""))
             return "default";
