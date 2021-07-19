@@ -5,31 +5,18 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import de.predic8.kubernetesclient.Kubeconfig;
-import de.predic8.kubernetesclient.PEMSupport;
-import okhttp3.Interceptor;
 import okhttp3.Request;
-import okhttp3.Response;
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.security.*;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.interfaces.RSAPrivateCrtKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 public class LocalKubeconfigApiClient extends LoggingApiClient {
 
@@ -54,9 +41,7 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
             LOG.info("Using Kubernetes URL " + bp);
             setBasePath(bp);
 
-            String ca = config.getCluster().certificateAuthority;
-            if (ca != null)
-                ca = Files.asCharSource(new File(baseDir, ca), Charsets.UTF_8).read();
+            String ca = getReferencedFile(baseDir, config.getCluster().certificateAuthority);
 
             String cert = null, key = null;
             Kubeconfig.User user = config.getUser();
@@ -66,29 +51,8 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
                     return chain.proceed(request);
                 }).build()));
 
-                if (user.clientCertificate != null) {
-                    cert = user.clientCertificate;
-                    if (cert == null)
-                        throw new NotImplementedException();
-                    File file;
-                    if (cert.contains(":\\"))
-                        file = new File(cert);
-                    else
-                        file = new File(baseDir, cert);
-                    cert = Files.asCharSource(file, Charsets.UTF_8).read();
-                }
-
-                if (user.clientKey != null) {
-                    key = user.clientKey;
-                    if (key == null)
-                        throw new NotImplementedException();
-                    File file;
-                    if (key.contains(":\\"))
-                        file = new File(key);
-                    else
-                        file = new File(baseDir, key);
-                    key = Files.asCharSource(file, Charsets.UTF_8).read();
-                }
+                cert = getReferencedFile(baseDir, user.clientCertificate);
+                key = getReferencedFile(baseDir, user.clientKey);
             }
 
             try {
@@ -112,6 +76,15 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
         }
         return Optional.empty();
     }
+
+    private String getReferencedFile(File baseDir, String filePath) throws IOException {
+        if (filePath == null)
+            return null;
+        File file = new File(filePath);
+        File absolutePath = file.isAbsolute() ? file : new File(baseDir, filePath);
+        return Files.asCharSource(absolutePath, Charsets.UTF_8).read();
+    }
+
     public String getMyNamespace() {
         if (namespace == null || namespace.equals(""))
             return "default";
