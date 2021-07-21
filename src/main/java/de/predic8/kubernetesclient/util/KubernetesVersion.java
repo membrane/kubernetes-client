@@ -1,15 +1,7 @@
 package de.predic8.kubernetesclient.util;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.predic8.kubernetesclient.CustomCoreV1Api;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.Pair;
@@ -17,9 +9,13 @@ import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Daniel Bonnauer(bonnauer@predic8.de), Predic8 GmbH on 04.07.17
