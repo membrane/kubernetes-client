@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Kubernetes Client for Java</description>
+    <description>Extension of the official Kubernetes Java client library.</description>
     <url>https://github.com/membrane/kubernetes-client</url>
 
     <licenses>
