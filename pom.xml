@@ -12,6 +12,14 @@
     <description>Extension of the official Kubernetes Java client library.</description>
     <url>https://github.com/membrane/kubernetes-client</url>
 
+    <developers>
+        <developer>
+            <name>Valentin Brückel</name>
+            <email>brueckel@predic8.de</email>
+            <organization>predic8</organization>
+            <organizationUrl>https://predic8.de</organizationUrl>
+        </developer>
+    </developers>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
