@@ -5,8 +5,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import de.predic8.kubernetesclient.Kubeconfig;
-import de.predic8.kubernetesclient.PEMSupport;
-import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.NotImplementedException;
@@ -15,20 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.security.*;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.interfaces.RSAPrivateCrtKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 public class LocalKubeconfigApiClient extends LoggingApiClient {
 
@@ -53,46 +42,18 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
             LOG.info("Using Kubernetes URL " + bp);
             setBasePath(bp);
 
-            String ca = config.getCluster().certificateAuthority;
-            if (ca != null)
-                ca = Files.asCharSource(new File(baseDir, ca), Charsets.UTF_8).read();
+            String ca = getReferencedFile(baseDir, config.getCluster().certificateAuthority);
 
             String cert = null, key = null;
             Kubeconfig.User user = config.getUser();
             if (user != null) {
-                if (user.token != null) {
-                    setHttpClient(getHttpClient().newBuilder().addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            Request request = chain.request().newBuilder().header("Authorization", "Bearer " + user.token).build();
-                            return chain.proceed(request);
-                        }
-                    }).build());
-                }
+                findToken(user).ifPresent(token -> setHttpClient(getHttpClient().newBuilder().addInterceptor(chain -> {
+                    Request request = chain.request().newBuilder().header("Authorization", "Bearer " + token).build();
+                    return chain.proceed(request);
+                }).build()));
 
-                if (user.clientCertificate != null) {
-                    cert = user.clientCertificate;
-                    if (cert == null)
-                        throw new NotImplementedException();
-                    File file;
-                    if (cert.contains(":\\"))
-                        file = new File(cert);
-                    else
-                        file = new File(baseDir, cert);
-                    cert = Files.asCharSource(file, Charsets.UTF_8).read();
-                }
-
-                if (user.clientKey != null) {
-                    key = user.clientKey;
-                    if (key == null)
-                        throw new NotImplementedException();
-                    File file;
-                    if (key.contains(":\\"))
-                        file = new File(key);
-                    else
-                        file = new File(baseDir, key);
-                    key = Files.asCharSource(file, Charsets.UTF_8).read();
-                }
+                cert = getReferencedFile(baseDir, user.clientCertificate);
+                key = getReferencedFile(baseDir, user.clientKey);
             }
 
             try {
@@ -105,6 +66,24 @@ public class LocalKubeconfigApiClient extends LoggingApiClient {
         }
 
         super.init();
+    }
+
+    private Optional<String> findToken(Kubeconfig.User user) {
+        if (user.token != null) {
+            return Optional.of(user.token);
+        }
+        if (user.authProvider != null && user.authProvider.config != null && user.authProvider.config.idToken != null) {
+            return Optional.of(user.authProvider.config.idToken);
+        }
+        return Optional.empty();
+    }
+
+    private String getReferencedFile(File baseDir, String filePath) throws IOException {
+        if (filePath == null)
+            return null;
+        File file = new File(filePath);
+        File absolutePath = file.isAbsolute() ? file : new File(baseDir, filePath);
+        return Files.asCharSource(absolutePath, Charsets.UTF_8).read();
     }
 
     public String getMyNamespace() {

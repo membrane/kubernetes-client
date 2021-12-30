@@ -1,5 +1,6 @@
 package de.predic8.kubernetesclient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -7,8 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Kubeconfig {
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Cluster {
         @JsonProperty("certificate-authority")
         public String certificateAuthority;
@@ -26,27 +29,32 @@ public class Kubeconfig {
         }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ClusterReference {
         public String name;
         public Cluster cluster;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ContextReference {
         public Context context;
         public String name;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Context {
         public String cluster;
         public String namespace;
         public String user;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class UserReference {
         public String name;
         public User user;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class User {
         @JsonProperty("client-certificate")
         public String clientCertificate;
@@ -70,14 +78,19 @@ public class Kubeconfig {
         public String token;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AuthProviderReference {
         public String name;
         public AuthProvider config;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AuthProvider {
         @JsonProperty("access-token")
         public String accessToken;
+
+        @JsonProperty("id-token")
+        public String idToken;
 
         @JsonProperty("cmd-args")
         public String cmdArgs;
@@ -94,7 +107,6 @@ public class Kubeconfig {
         public String tokenKey;
     }
 
-
     public String apiVersion;
 
     public List<ClusterReference> clusters = new ArrayList<>();
@@ -110,6 +122,7 @@ public class Kubeconfig {
 
     public List<UserReference> users = new ArrayList<>();
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public Context getCurrentContext() {
         for (ContextReference cr : contexts)
             if (cr.name.equals(currentContext))
@@ -117,6 +130,7 @@ public class Kubeconfig {
         throw new IllegalStateException("There is no context called '" + currentContext + "'.");
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public Cluster getCluster() {
         Context ctx = getCurrentContext();
         for (ClusterReference cr : clusters)
@@ -125,6 +139,7 @@ public class Kubeconfig {
         throw new IllegalStateException("There is no context called '" + ctx.cluster + "'.");
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public User getUser() {
         Context ctx = getCurrentContext();
         if (ctx.user == null)
