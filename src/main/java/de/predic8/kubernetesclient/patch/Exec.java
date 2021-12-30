@@ -27,8 +27,6 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Reader;
 
-import org.apache.commons.lang.StringUtils;
-
 public class Exec {
     private ApiClient apiClient;
 
@@ -72,7 +70,7 @@ public class Exec {
             "stdin=" + stdin +
             "&tty=" + tty +
             (container != null ? "&container=" + container : "") + 
-            "&command=" + StringUtils.join(command, "&command=");
+            "&command=" + String.join("&command=", command);
         return path;
     }
 

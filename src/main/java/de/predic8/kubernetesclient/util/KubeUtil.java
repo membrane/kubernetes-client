@@ -94,7 +94,7 @@ public class KubeUtil {
         while (true) {
             V1CustomResourceDefinition crd2 = null;
             try {
-                crd2 = api.readCustomResourceDefinition(crd.getMetadata().getName(), null, null, null);
+                crd2 = api.readCustomResourceDefinition(crd.getMetadata().getName(), null);
             } catch (ApiException e) {
                 e.printStackTrace();
             }

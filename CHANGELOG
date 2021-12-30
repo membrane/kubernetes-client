@@ -1,0 +1,4 @@
+* while bumping from kubernetes-client-0.0.14 to 0.0.15:
+  ** remove the joda-time dependency
+  ** replace org.joda.time.DateTime  by java.time.OffsetDateTime
+  ** replace org.joda.time.LocalDate by java.time.LocalDate

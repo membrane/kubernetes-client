@@ -10,10 +10,10 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.JSON;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Date;
 
@@ -35,7 +35,7 @@ public abstract class NamespacedApiClient extends ApiClient {
             setGson(new GsonBuilder()
                 .registerTypeAdapter(Date.class, new DateTypeAdapter())
                 .registerTypeAdapter(java.sql.Date.class, new SqlDateTypeAdapter())
-                .registerTypeAdapter(DateTime.class, new DateTimeTypeAdapter())
+                .registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeTypeAdapter())
                 .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
                 .registerTypeAdapter(byte[].class, new ByteArrayBase64StringTypeAdapter())
                 .create());
