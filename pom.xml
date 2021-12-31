@@ -6,7 +6,7 @@
 
     <groupId>de.predic8</groupId>
     <artifactId>kubernetes-client</artifactId>
-    <version>0.0.18</version>
+    <version>0.0.19</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Extension of the official Kubernetes Java client library.</description>
