@@ -30,10 +30,13 @@ import java.security.KeyPair;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class PEMSupport {
 
     public abstract X509Certificate parseCertificate(String pemBlock) throws IOException;
+    public abstract List<X509Certificate> parseCertificates(String pemBlock) throws IOException;
     public abstract Key getPrivateKey(String content) throws IOException;
     public abstract Object parseKey(String content) throws IOException;
 
@@ -82,6 +85,29 @@ public abstract class PEMSupport {
             } catch (CertificateException e) {
                 throw new IOException(e);
             }
+        }
+
+        public List<X509Certificate> parseCertificates(String pemBlock) throws IOException {
+            PEMParser p2 = new PEMParser(new StringReader(cleanupPEM(pemBlock)));
+            List<X509Certificate> result = new ArrayList<>();
+            JcaX509CertificateConverter certconv = new JcaX509CertificateConverter().setProvider("BC");
+            while(true) {
+                Object o2 = p2.readObject();
+                if (o2 == null)
+                    if (result.size() > 0)
+                        break;
+                    else
+                        throw new InvalidParameterException("Could not read certificate. Expected the certificate to begin with '-----BEGIN CERTIFICATE-----'.");
+                if (!(o2 instanceof X509CertificateHolder))
+                    throw new InvalidParameterException("Expected X509CertificateHolder, got " + o2.getClass().getName());
+
+                try {
+                    result.add(certconv.getCertificate((X509CertificateHolder) o2));
+                } catch (CertificateException e) {
+                    throw new IOException(e);
+                }
+            }
+            return result;
         }
 
         public Key getPrivateKey(String pemBlock) throws IOException {

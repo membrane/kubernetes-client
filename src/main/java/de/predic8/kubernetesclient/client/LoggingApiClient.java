@@ -79,7 +79,7 @@ public abstract class LoggingApiClient extends NamespacedApiClient {
 
         List<java.security.cert.Certificate> certs = new ArrayList<java.security.cert.Certificate>();
 
-        certs.add(PEMSupport.getInstance().parseCertificate(cert));
+        certs.addAll(PEMSupport.getInstance().parseCertificates(cert));
 
         Object key = PEMSupport.getInstance().parseKey(k2);
         Key k = key instanceof Key ? (Key) key : ((KeyPair)key).getPrivate();
