@@ -71,7 +71,9 @@ public class KubernetesMasterElector {
         holderName = InetAddress.getLocalHost().getHostName();
         this.leaseName = this.leaseName.toLowerCase().replaceAll(" ", "-");
 
-        elect();
+        Thread t = new Thread(() -> elect());
+        t.setName(holderName + "-master-elector");
+        t.start();
     }
 
     private Runnable runnable;
@@ -83,8 +85,8 @@ public class KubernetesMasterElector {
     public V1Lease getByName() throws ApiException {
         try {
             return ops.readNamespacedLease(leaseName, namespace, null);
-        }catch (ApiException e) {
-            if(e.getResponseBody() != null && e.getResponseBody().contains("\"reason\":\"NotFound\"")) // todo improve
+        } catch (ApiException e) {
+            if (e.getResponseBody() != null && e.getResponseBody().contains("\"reason\":\"NotFound\"")) // todo improve
                 return null;
             throw e;
         }
@@ -92,9 +94,9 @@ public class KubernetesMasterElector {
 
     public void elect() {
         LOG.info("Starting election..." + System.lineSeparator()
-        + " holder name: " + holderName + System.lineSeparator()
-        + " lease duration/renew timeout: " + leaseDurationSeconds + "/" + leaseRenewTimeout + System.lineSeparator()
-        + (logOnly ? "only logging if election won" : ""));
+                + " holder name: " + holderName + System.lineSeparator()
+                + " lease duration/renew timeout: " + leaseDurationSeconds + "/" + leaseRenewTimeout + System.lineSeparator()
+                + (logOnly ? "only logging if election won" : ""));
         while (true) {
             V1Lease oldLease = null;
             OffsetDateTime now = OffsetDateTime.now();
@@ -107,7 +109,7 @@ public class KubernetesMasterElector {
                             !(now.isAfter(spec.getAcquireTime().plus(Duration.of(spec.getLeaseDurationSeconds(), ChronoUnit.SECONDS))))) {
                         // wait for expiration of lease
                         long timeout = oldLease.getSpec().getAcquireTime().toInstant().toEpochMilli() + Duration.of(oldLease.getSpec().getLeaseDurationSeconds(), ChronoUnit.SECONDS).toMillis() - OffsetDateTime.now().toInstant().toEpochMilli();
-                        if(timeout > 0)
+                        if (timeout > 0)
                             Thread.sleep(timeout);
                         continue;
                     }
@@ -137,7 +139,7 @@ public class KubernetesMasterElector {
                         runnable.run();
 
                     long timeout = lease.getSpec().getRenewTime().toInstant().toEpochMilli() - OffsetDateTime.now().toInstant().toEpochMilli();
-                    if(timeout > 0)
+                    if (timeout > 0)
                         Thread.sleep(timeout);
                 }
             } catch (ApiException e) {
