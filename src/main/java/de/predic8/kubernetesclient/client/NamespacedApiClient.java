@@ -14,6 +14,7 @@ import io.kubernetes.client.openapi.JSON;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Base64;
 import java.util.Date;
 
@@ -35,7 +36,10 @@ public abstract class NamespacedApiClient extends ApiClient {
             setGson(new GsonBuilder()
                 .registerTypeAdapter(Date.class, new DateTypeAdapter())
                 .registerTypeAdapter(java.sql.Date.class, new SqlDateTypeAdapter())
-                .registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeTypeAdapter())
+                .registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeTypeAdapter(new DateTimeFormatterBuilder()
+                        .appendPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+                        .appendOffsetId()
+                        .toFormatter()))
                 .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
                 .registerTypeAdapter(byte[].class, new ByteArrayBase64StringTypeAdapter())
                 .create());
