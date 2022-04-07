@@ -127,9 +127,9 @@ public class KubernetesMasterElector {
                     V1Lease lease = leaseFromNow(namespace, holderName);
                     if (oldLease != null) {
                         lease.setMetadata(oldLease.getMetadata()); // keep resource version etc.
-                        lease = ops.replaceNamespacedLease(lease.getMetadata().getName(), namespace, lease, null, null, null);
+                        lease = ops.replaceNamespacedLease(lease.getMetadata().getName(), namespace, lease, null, null, null, null);
                     } else {
-                        ops.createNamespacedLease(namespace, lease, null, null, null);
+                        ops.createNamespacedLease(namespace, lease, null, null, null, null);
                     }
                     oldLease = getByName();
                     currentOwner = true;
