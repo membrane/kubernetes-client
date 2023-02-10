@@ -10,6 +10,6 @@ Add dependency:
 		<dependency>
 			<groupId>de.predic8</groupId>
 			<artifactId>kubernetes-client</artifactId>
-			<version>0.0.21</version>
+			<version>0.0.25</version>
 		</dependency>
 ```
