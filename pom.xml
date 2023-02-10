@@ -6,7 +6,7 @@
 
     <groupId>de.predic8</groupId>
     <artifactId>kubernetes-client</artifactId>
-    <version>0.0.24-SNAPSHOT</version>
+    <version>0.0.24</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Extension of the official Kubernetes Java client library.</description>
@@ -111,7 +111,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
+                        <version>1.6.13</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
