@@ -7,7 +7,7 @@ import de.predic8.kubernetesclient.util.KubeUtil;
 import de.predic8.kubernetesclient.util.KubernetesVersion;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.ApiextensionsV1Api;
-import io.kubernetes.client.openapi.apis.PolicyV1beta1Api;
+import io.kubernetes.client.openapi.apis.PolicyV1Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,8 +50,8 @@ public class KubernetesClientConfig {
     }
 
     @Bean
-    public PolicyV1beta1Api policyV1beta1Api(@Autowired ApiClient apiClient) {
-        return new PolicyV1beta1Api(apiClient);
+    public PolicyV1Api policyV1beta1Api(@Autowired ApiClient apiClient) {
+        return new PolicyV1Api(apiClient);
     }
 
     @Bean
